@@ -8,7 +8,7 @@ import hmac
 import base64
 DIGEST = sha1
 INTERVAL = 30
-SECRET = 30
+SECRET = "JBSWY3DPEHPK3PXP"
 DIGITS = 6
 
 def strings_equal(s1: str, s2: str) -> bool:
@@ -37,7 +37,7 @@ def timecode(for_time: datetime) -> int:
 
 def byte_secret() -> bytes:
     secret = SECRET
-    missing_padding = len(secret) % 8
+    missing_padding = len(SECRET) % 8
     if missing_padding != 0:
         secret += "=" * (8 - missing_padding)
     return base64.b32decode(secret, casefold=True)
@@ -70,7 +70,7 @@ def at(for_time: datetime|int, counter_offset: int = 0) -> str:
     if not isinstance(for_time, datetime):
         for_time = datetime.fromtimestamp(for_time)
     counter = for_time + timedelta(seconds=counter_offset)
-    return generate_otp(counter)
+    return generate_otp(timecode(counter))
 
 def now():
     return generate_otp(timecode(datetime.now()))
@@ -78,8 +78,9 @@ def now():
 
 def main():
     now_time = datetime.now()
-    for i in range(30):
-        print(at(now_time, i))
+    for i in range(-10, 10):
+        otp = at(now_time, i*30)
+        print(otp, verify(otp))
 
 if __name__ == "__main__":
     main()
